@@ -1,5 +1,6 @@
 package org.eventEnricher;
 
+import java.util.Date;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -16,11 +17,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.integration.support.MessageBuilder;
 import com.codahale.metrics.MetricRegistry;
 
-@SpringBootApplication(scanBasePackages="org.opennms.netmgt.eventd")
+@SpringBootApplication(scanBasePackages= {"org.opennms.netmgt.eventd","org.eventEnricher"})
 @EnableBinding(Processor.class)
-public class SpringcloudstreamsEventEnricher {
+public class EventEnricherService {
 	
-	private static int count;
+	public static int count;
+	public static Date firstTimestamp;
+	public static Date lastTimestamp;
 	
 	private Processor processor;
 	
@@ -30,13 +33,34 @@ public class SpringcloudstreamsEventEnricher {
 	private EventIpcManagerDefaultImpl eventIpcManagerDefaultImpl;
 	
 	@Autowired
-	public SpringcloudstreamsEventEnricher(Processor processor) {
+	public EventEnricherService(Processor processor) {
 		this.processor = processor;
 	}
 	
 	
 	public static void main(String[] args) {
-		SpringApplication.run(SpringcloudstreamsEventEnricher.class, args);
+		SpringApplication.run(EventEnricherService.class, args);
+		
+		class SimpleCounter implements Runnable{
+
+			@Override
+			public void run() {
+				while(true) {
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+					if (count > 1) {
+						firstTimestamp = new Date();
+						//System.out.println("Captured the first timeStamp"+firstTimestamp);
+						break;
+					}
+				}
+			}
+		}
+		
+		new Thread(new SimpleCounter()).start();
 	}
 	
 	@Bean
@@ -77,7 +101,7 @@ public class SpringcloudstreamsEventEnricher {
 	public void sendLogObject(Log log) {
 		processor.output().send(MessageBuilder.withPayload((log)).build());
 		count++;
-		System.out.println("EnrichmentCount Count:"+count);
+		lastTimestamp = new Date();
 	}
 
 }

@@ -1,5 +1,6 @@
 package com.cerner.mef;
 
+import java.util.Date;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -17,28 +18,51 @@ import org.springframework.integration.support.MessageBuilder;
 
 @SpringBootApplication
 @EnableBinding(Processor.class)
-public class SpringcloudstreamsSyslogApplication {
+public class SyslogConvertToEventService {
 	
 	private Processor processor;
-	
 	private ExecutorService service = Executors.newFixedThreadPool(100);
+	
+	public static int count;
+	public static Date lastTimeStamp;
+	public static Date firstTimeStamp;
 	
 	@Bean
 	public SyslogSinkConsumer SyslogSinkConsumer() {
 		return new SyslogSinkConsumer();
 	}
 	
-	public SpringcloudstreamsSyslogApplication(Processor processor) {
+	public SyslogConvertToEventService(Processor processor) {
 		this.processor = processor;
 	}
-	
-	private static int count;
 	
 	@Autowired
 	private SyslogSinkConsumer syslogSinkConsumer;
 
 	public static void main(String[] args) {
-		SpringApplication.run(SpringcloudstreamsSyslogApplication.class, args);
+		SpringApplication.run(SyslogConvertToEventService.class, args);
+		
+		class SimpleCounter implements Runnable{
+
+			@Override
+			public void run() {
+				while(true) {
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					if (count > 1) {
+						firstTimeStamp = new Date();
+						//System.out.println("Captured the first timeStamp"+firstTimeStamp);
+						break;
+					}
+				}
+			}
+		}
+		
+		new Thread(new SimpleCounter()).start();
 	}
 	
 	@StreamListener(Processor.INPUT)
@@ -66,11 +90,11 @@ public class SpringcloudstreamsSyslogApplication {
 		service.execute(new SyslogConvertTOEvent(syslogMessageLogDTO));
 	}
 	
-	
 	public void postLogsToStream(Log log) {
-		processor.output().send(MessageBuilder.withPayload(log).build());
 		count++;
-		System.out.println("Syslog Count:"+count);
+		processor.output().send(MessageBuilder.withPayload(log).build());
+		lastTimeStamp = new Date();
+		//System.out.println("Count:"+count);
 	}
 	
 }
