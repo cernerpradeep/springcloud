@@ -25,7 +25,7 @@ public class Minion1Application {
 	
 	private static int count;
 	
-	private static int perSecond = 10;
+	private static int perSecond = 1;
 	
 	private static int batches = 10;
 	

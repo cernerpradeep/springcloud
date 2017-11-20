@@ -12,6 +12,7 @@ import org.springframework.cloud.stream.messaging.Processor;
 
 @SpringBootApplication
 @EnableBinding(Processor.class)
+
 public class EventBroadCasterService {
 	
 	public static int count;
@@ -33,7 +34,7 @@ public class EventBroadCasterService {
 					}
 					if (count > 1) {
 						firstTimestamp = new Date();
-						System.out.println("Captured the first timeStamp"+firstTimestamp);
+						//System.out.println("Captured the first timeStamp"+firstTimestamp);
 						break;
 					}
 				}

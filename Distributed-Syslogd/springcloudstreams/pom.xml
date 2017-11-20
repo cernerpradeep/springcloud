@@ -15,6 +15,7 @@
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>1.5.7.RELEASE</version>
+		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 
 	<properties>
@@ -33,20 +34,11 @@
 			<groupId>org.springframework.kafka</groupId>
 			<artifactId>spring-kafka</artifactId>
 		</dependency>
-   <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-web</artifactId>
-    </dependency>
-    
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
-		</dependency>
-		
-		<dependency>
-		    <groupId>org.springframework</groupId>
-		    <artifactId>spring-aop</artifactId>
 		</dependency>
 		
 		<dependency>
@@ -86,18 +78,6 @@
 		    <groupId>com.codahale.metrics</groupId>
 		    <artifactId>metrics-core</artifactId>
 		    <version>3.0.2</version>
-		</dependency>
-		
-		<dependency>
-		    <groupId>com.codahale.metrics</groupId>
-		    <artifactId>metrics-jvm</artifactId>
-		    <version>3.0.2</version>
-		</dependency>
-		
-		<dependency>
-		    <groupId>com.codahale.metrics</groupId>
-		    <artifactId>metrics-logback</artifactId>
-		    <version>3.0.1</version>
 		</dependency>
 		
 		<dependency>
@@ -312,11 +292,7 @@
 		    <artifactId>natty</artifactId>
 		    <version>0.13</version>
 		</dependency>
-
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-aop</artifactId>
-		</dependency>
+    		
 	</dependencies>
 
 	<dependencyManagement>

@@ -5,6 +5,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.opennms.netmgt.dao.mock.EventWrapper;
 import org.opennms.netmgt.eventd.EventIpcManagerDefaultImpl;
 import org.opennms.netmgt.xml.event.Log;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -100,6 +101,7 @@ public class EventEnricherService {
 	
 	public void sendLogObject(Log log) {
 		processor.output().send(MessageBuilder.withPayload((log)).build());
+		//System.out.println(new EventWrapper(log.getEvents().getEvent(0)));
 		count++;
 		lastTimestamp = new Date();
 	}
