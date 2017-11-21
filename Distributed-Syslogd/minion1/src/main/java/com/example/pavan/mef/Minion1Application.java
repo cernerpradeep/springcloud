@@ -4,6 +4,7 @@
 package com.example.pavan.mef;
 
 import java.net.UnknownHostException;
+import java.util.Date;
 
 import org.opennms.netmgt.syslogd.api.SyslogMessageLogDTO;
 import org.springframework.boot.SpringApplication;
@@ -31,6 +32,12 @@ public class Minion1Application {
 	
 	private int batchCount = 1;
 	
+	private static boolean started=false;
+	
+	private static Date firstTimestamp;
+	
+	private static Date lastTimestamp;
+	
 	public static void main(String[] args) {
 		SpringApplication.run(Minion1Application.class, args);
 	}
@@ -40,10 +47,21 @@ public class Minion1Application {
 	public MessageSource<SyslogMessageLogDTO> timerMessageSource() {
 		return () -> {
 			try {
+				if(!started) {
+					started =true;
+					firstTimestamp = new Date();
+				}
+				
+				
 				if(count == perSecond) {
 						if(batchCount == batches) {
+							System.out.println("Completed Sending :"+(perSecond * batchCount));
+							lastTimestamp = new Date();
+							long timeTaken = Math.abs(lastTimestamp.getTime() - firstTimestamp.getTime())/1000;
+							System.out.println("Total time taken to send all messages:"+timeTaken);
 							System.exit(0);
 						}
+					
 					int totalSyslogs = perSecond * batchCount;
 					System.out.println("Syslogs sent so far:"+totalSyslogs);
 					count = 0;

@@ -140,13 +140,13 @@ public class SyslogSinkConsumer  {
     }
     
     public Log handleMessage(SyslogMessageLogDTO syslogDTO) {
-        try (Context consumerCtx = consumerTimer.time()) {
-            try (MDCCloseable mdc = Logging.withPrefixCloseable(Syslogd.LOG4J_CATEGORY)) {
+       // try (Context consumerCtx = consumerTimer.time()) {
+        //    try (MDCCloseable mdc = Logging.withPrefixCloseable(Syslogd.LOG4J_CATEGORY)) {
                 // Convert the Syslog UDP messages to Events
                 final Log eventLog;
-                try (Context toEventCtx = toEventTimer.time()) {
+          //      try (Context toEventCtx = toEventTimer.time()) {
                     eventLog = toEventLog(syslogDTO);
-                }
+            //    }
                 //count ++;
                 // Broadcast the Events to the event bus
                /* try (Context broadCastCtx = broadcastTimer.time()) {
@@ -155,8 +155,8 @@ public class SyslogSinkConsumer  {
                 //System.out.println("Received Syslogs:"+count);
                 return eventLog;
             }
-        }
-    }
+       // }
+   // }
 
     public Log toEventLog(SyslogMessageLogDTO messageLog) {
         final Log elog = new Log();

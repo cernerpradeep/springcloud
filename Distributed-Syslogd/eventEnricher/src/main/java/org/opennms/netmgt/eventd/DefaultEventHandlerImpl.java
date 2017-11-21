@@ -133,7 +133,7 @@ public final class DefaultEventHandlerImpl implements InitializingBean, EventHan
             }
         }
 
-        try (Timer.Context context = processTimer.time()) {
+       // try (Timer.Context context = processTimer.time()) {
             for (final EventProcessor eventProcessor : m_eventProcessors) {
                 try {
                     eventProcessor.process(eventLog, synchronous);
@@ -146,7 +146,7 @@ public final class DefaultEventHandlerImpl implements InitializingBean, EventHan
                     break;
                 }
             }
-        }
+       // }
         
 	    	completableFuture.complete(eventLog);
 	   // 	System.out.println("Sending it back via completable future.....");
@@ -232,7 +232,7 @@ public final class DefaultEventHandlerImpl implements InitializingBean, EventHan
                 }*/
             }
 
-            try (Timer.Context context = processTimer.time()) {
+           // try (Timer.Context context = processTimer.time()) {
                 for (final EventProcessor eventProcessor : m_eventProcessors) {
                     try {
                         eventProcessor.process(m_eventLog, m_synchronous);
@@ -245,7 +245,7 @@ public final class DefaultEventHandlerImpl implements InitializingBean, EventHan
                         break;
                     }
                 }
-            }
+            //}
             
             return m_eventLog;
         }
