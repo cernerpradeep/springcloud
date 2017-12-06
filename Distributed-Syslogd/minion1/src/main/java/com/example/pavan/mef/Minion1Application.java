@@ -28,7 +28,7 @@ public class Minion1Application {
 	
 	private static int perSecond = 1;
 	
-	private static int batches = 10;
+	private static int batches = 2;
 	
 	private int batchCount = 1;
 	
@@ -44,7 +44,7 @@ public class Minion1Application {
  
 	@Bean
 	@InboundChannelAdapter(value = Minion1.SAMPLE,poller = @Poller(fixedDelay = "1", maxMessagesPerPoll = "10000"))
-	public MessageSource<SyslogMessageLogDTO> timerMessageSource() {
+	public MessageSource<String> timerMessageSource() throws UnknownHostException {
 		return () -> {
 			try {
 				if(!started) {
@@ -69,10 +69,7 @@ public class Minion1Application {
 					Thread.sleep(1000);
 				}
 				count++;
-				return MessageBuilder.withPayload(SyslogBean.getSyslogMsg()).build();
-			} catch (UnknownHostException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				return MessageBuilder.withPayload(SyslogBean.getSyslogString()).build();
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

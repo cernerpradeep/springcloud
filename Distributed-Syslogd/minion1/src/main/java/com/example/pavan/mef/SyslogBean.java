@@ -4,7 +4,12 @@ import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.opennms.netmgt.syslogd.api.SyslogConnection;
@@ -27,4 +32,29 @@ public class SyslogBean {
 		messageLog.setMessages(messageDTOs);
 		return messageLog;
 	}
+	
+	public static String getSyslogString() {
+		String syslogMessage = "<syslog-message-log source-address=\"127.0.0.1\" source-port=\"1514\" system-id=\"99\" location=\"MalaMac\">\n"
+
+		+ "   <messages timestamp=\"" + iso8601OffsetString(new Date(0), ZoneId.systemDefault(), ChronoUnit.SECONDS)
+
+		+ "\">PDMxPm1haW46IDIwMTctMTAtMDMgbG9jYWxob3N0IGZvbyVkOiBsb2FkIHRlc3RwYXZhbiAlZCBvbiB0dHkx</messages>\n"
+
+		+ "</syslog-message-log>";
+		return syslogMessage;
+	}
+	
+	public static String iso8601OffsetString(Date d, ZoneId zone, ChronoUnit truncateTo) {
+
+		ZonedDateTime zdt = ((d).toInstant()).atZone(zone);
+
+		if (truncateTo != null) {
+
+		zdt = zdt.truncatedTo(truncateTo);
+
+		}
+
+		return zdt.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+
+		}
 }
