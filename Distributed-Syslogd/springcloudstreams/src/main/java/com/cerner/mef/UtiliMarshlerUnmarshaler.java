@@ -30,7 +30,6 @@ public class UtiliMarshlerUnmarshaler {
 	public synchronized Object unmarshal(String xml) {
 		
 		 StreamSource streamSource = new StreamSource(new StringReader(xml));
-		 
 		 JAXBElement<SyslogMessageLogDTO> je = null;
 		 
 		   try {
