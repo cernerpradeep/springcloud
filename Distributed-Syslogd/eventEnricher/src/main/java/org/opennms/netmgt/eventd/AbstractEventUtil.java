@@ -382,7 +382,7 @@ public abstract class AbstractEventUtil implements EventUtil {
 		return outBuffer.toString();
 	}
 
-	//@Autowired
+	@Autowired
 	private TransactionOperations transactionOperations;
 
 	private final LoadingCache<String, EventTemplate> eventTemplateCache;
