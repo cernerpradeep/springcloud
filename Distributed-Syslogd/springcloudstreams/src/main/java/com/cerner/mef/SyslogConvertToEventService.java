@@ -6,6 +6,7 @@ import java.util.concurrent.Executors;
 
 import org.opennms.netmgt.syslogd.SyslogSinkConsumer;
 import org.opennms.netmgt.syslogd.api.SyslogMessageLogDTO;
+import org.opennms.netmgt.xml.event.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -17,10 +18,10 @@ import org.springframework.integration.support.MessageBuilder;
 
 @SpringBootApplication
 @EnableBinding(Processor.class)
-public class SyslogStringToDTOConverterService {
+public class SyslogConvertToEventService {
 	
 	private Processor processor;
-	private ExecutorService service = Executors.newFixedThreadPool(16);
+	private ExecutorService service = Executors.newFixedThreadPool(2);
 	
 	public static int count;
 	public static Date lastTimeStamp;
@@ -34,12 +35,15 @@ public class SyslogStringToDTOConverterService {
 		return new SyslogSinkConsumer();
 	}
 	
-	public SyslogStringToDTOConverterService(Processor processor) {
+	public SyslogConvertToEventService(Processor processor) {
 		this.processor = processor;
 	}
 	
+	@Autowired
+	private SyslogSinkConsumer syslogSinkConsumer;
+
 	public static void main(String[] args) {
-		SpringApplication.run(SyslogStringToDTOConverterService.class, args);
+		SpringApplication.run(SyslogConvertToEventService.class, args);
 		
 		class SimpleCounter implements Runnable{
 
@@ -65,14 +69,14 @@ public class SyslogStringToDTOConverterService {
 	}
 	
 	@StreamListener(Processor.INPUT)
-	public void receiveSyslogs(String syslogMessage) {
+	public void receiveSyslogs(Object syslogMessage) {
 		
 		class SyslogConvertTOEvent implements Runnable {
 			
 			private SyslogMessageLogDTO syslogMessageLogDTO;
 			
-			public SyslogConvertTOEvent(String message){
-				syslogMessageLogDTO = (SyslogMessageLogDTO) xmlHandler.unmarshal(syslogMessage);
+			public SyslogConvertTOEvent(String message) {
+				syslogMessageLogDTO = (SyslogMessageLogDTO) xmlHandler.unmarshal(syslogMessage.toString());
 			}
 
 			@Override
@@ -82,15 +86,16 @@ public class SyslogStringToDTOConverterService {
 			
 			public void convertTOEvent() {
 				    
-				postLogsToStream(syslogMessageLogDTO);
+				Log logObject = syslogSinkConsumer.handleMessage(syslogMessageLogDTO);
+				postLogsToStream(logObject);
 			}
 		}
-		service.execute(new SyslogConvertTOEvent(syslogMessage));
+		service.execute(new SyslogConvertTOEvent(syslogMessage.toString()));
 	}
 	
-	public void postLogsToStream(SyslogMessageLogDTO syslogMessageLogDTO) {
+	public void postLogsToStream(Log log) {
 		count++;
-		processor.output().send(MessageBuilder.withPayload(syslogMessageLogDTO).build());
+		processor.output().send(MessageBuilder.withPayload(log).build());
 		lastTimeStamp = new Date();
 		//System.out.println("Count:"+count);
 	}

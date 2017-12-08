@@ -59,7 +59,7 @@ public class SyslogMessageLogDTO {
     private String location;
     @XmlElement(name = "messages")
     private List<SyslogMessageDTO> messages;
-    
+    @XmlElement(name = "syslogMessage")
     public SyslogMessage getSyslogMessage() {
 		return syslogMessage;
 	}
