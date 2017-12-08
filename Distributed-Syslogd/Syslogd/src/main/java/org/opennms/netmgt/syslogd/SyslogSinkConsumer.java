@@ -158,7 +158,7 @@ public class SyslogSinkConsumer  {
        // }
    // }
 
-    public SyslogMessageLogDTO toSyslogMessage(SyslogMessageLogDTO messageLog) {
+    public Log toEventLog(SyslogMessageLogDTO messageLog) {
         final Log elog = new Log();
         final Events events = new Events();
         elog.setEvents(events);
@@ -175,39 +175,6 @@ public class SyslogSinkConsumer  {
                         StandardCharsets.US_ASCII.decode(message.getBytes()).toString(),
                         syslogdConfig,
                         parse(message.getBytes())
-                    );
-                messageLog.setSyslogMessage(re.getSyslogMessage());
-            } catch (final UnsupportedEncodingException e) {
-                LOG.info("Failure to convert package", e);
-            } catch (final MessageDiscardedException e) {
-                LOG.info("Message discarded, returning without enqueueing event.", e);
-            } catch (final Throwable e) {
-                LOG.error("Unexpected exception while processing SyslogConnection", e);
-            }
-            
-        }
-		return messageLog;
-        
-    }
-    
-    public Log toEventLog(SyslogMessageLogDTO messageLog) {
-        final Log elog = new Log();
-        final Events events = new Events();
-        elog.setEvents(events);
-        for (SyslogMessageDTO message : messageLog.getMessages()) {
-            try {
-                LOG.debug("Converting syslog message into event.");
-                ConvertSyslogMessageToEvent re = new ConvertSyslogMessageToEvent(
-                        messageLog.getSystemId(),
-                        messageLog.getLocation(),
-                        messageLog.getSourceAddress(),
-                        messageLog.getSourcePort(),
-                        // Decode the packet content as ASCII
-                        // TODO: Support more character encodings?
-                        StandardCharsets.US_ASCII.decode(message.getBytes()).toString(),
-                        syslogdConfig,
-                        parse(message.getBytes()),
-                        messageLog.getSyslogMessage()
                     );
                 events.addEvent(re.getEvent());
             } catch (final UnsupportedEncodingException e) {

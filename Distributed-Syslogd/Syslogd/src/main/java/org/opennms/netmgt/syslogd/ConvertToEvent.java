@@ -83,8 +83,6 @@ public class ConvertToEvent {
     protected static final String HIDDEN_MESSAGE = "The message logged has been removed due to configuration of Syslogd; it may contain sensitive data.";
 
     private final Event m_event;
-    
-    private SyslogMessage syslogMessage;
 
     private static final LoadingCache<String,Pattern> CACHED_PATTERNS = CacheBuilder.newBuilder().build(
         new CacheLoader<String,Pattern>() {
@@ -181,9 +179,7 @@ public class ConvertToEvent {
         if (message == null) {
             throw new MessageDiscardedException(String.format("Unable to parse '%s'", syslogString));
         }
-        m_event = null;
-        setSyslogMessage(message);
-       /* // Build a basic event out of the syslog message
+        // Build a basic event out of the syslog message
         final String priorityTxt = message.getSeverity().toString();
         final String facilityTxt = message.getFacility().toString();
 
@@ -235,7 +231,7 @@ public class ConvertToEvent {
         * node to match against nodeId.
          */
 
-      /*  Pattern msgPat = null;
+        Pattern msgPat = null;
         Matcher msgMat = null;
 
         // Time to verify UEI matching.
@@ -307,7 +303,7 @@ public class ConvertToEvent {
             bldr.addParam("processid", message.getProcessId().toString());
         }
 
-        m_event = bldr.getEvent();*/
+        m_event = bldr.getEvent();
     }
 
     private static boolean matchFind(final String expression, final String input, final String context) {
@@ -477,12 +473,5 @@ public class ConvertToEvent {
     public Event getEvent() {
         return m_event;
     }
-    
-    public void setSyslogMessage(SyslogMessage syslogMessage) {
-    		this.syslogMessage = syslogMessage;
-    }
 
-    public SyslogMessage getSyslogMessage() {
-    		return syslogMessage;
-    }
 }

@@ -69,14 +69,14 @@ public class SyslogConvertToEventService {
 	}
 	
 	@StreamListener(Processor.INPUT)
-	public void receiveSyslogs(Object syslogMessage) {
+	public void receiveSyslogs(String syslogMessage) {
 		
 		class SyslogConvertTOEvent implements Runnable {
 			
 			private SyslogMessageLogDTO syslogMessageLogDTO;
 			
 			public SyslogConvertTOEvent(String message) {
-				syslogMessageLogDTO = (SyslogMessageLogDTO) xmlHandler.unmarshal(syslogMessage.toString());
+				syslogMessageLogDTO = (SyslogMessageLogDTO) xmlHandler.unmarshal(syslogMessage);
 			}
 
 			@Override
@@ -90,7 +90,7 @@ public class SyslogConvertToEventService {
 				postLogsToStream(logObject);
 			}
 		}
-		service.execute(new SyslogConvertTOEvent(syslogMessage.toString()));
+		service.execute(new SyslogConvertTOEvent(syslogMessage));
 	}
 	
 	public void postLogsToStream(Log log) {
