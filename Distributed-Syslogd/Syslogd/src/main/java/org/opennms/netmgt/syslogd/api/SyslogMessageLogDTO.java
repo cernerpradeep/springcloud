@@ -39,9 +39,11 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.opennms.core.network.InetAddressXmlAdapter;
+import org.opennms.netmgt.syslogd.SyslogMessage;
 
 @XmlRootElement(name = "syslog-message-log")
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -57,7 +59,19 @@ public class SyslogMessageLogDTO {
     private String location;
     @XmlElement(name = "messages")
     private List<SyslogMessageDTO> messages;
+    
+    public SyslogMessage getSyslogMessage() {
+		return syslogMessage;
+	}
 
+	public void setSyslogMessage(SyslogMessage syslogMessage) {
+		this.syslogMessage = syslogMessage;
+	}
+
+	@XmlTransient
+    private SyslogMessage syslogMessage;
+    
+    
     public SyslogMessageLogDTO() {
         messages = new ArrayList<>(0);
     }

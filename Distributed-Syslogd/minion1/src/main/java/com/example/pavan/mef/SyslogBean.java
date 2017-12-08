@@ -34,14 +34,15 @@ public class SyslogBean {
 	}
 	
 	public static String getSyslogString() {
-		String syslogMessage = "<syslog-message-log source-address=\"127.0.0.1\" source-port=\"59506\" system-id=\"e7e55cde-da74-11e7-9b40-0050569a0c79\" location=\"MINION\">\n"
+		String syslogMessage = "<syslog-message-log source-address=\"127.0.0.1\" source-port=\"1514\" system-id=\"99\" location=\"MalaMac\">\n"
 
 		+ "   <messages timestamp=\"" + iso8601OffsetString(new Date(0), ZoneId.systemDefault(), ChronoUnit.SECONDS)
 
-		+ "\">PDM0PiAyMDE3LTAzLTE2IDcuNDMuMi4xMyBmb28xMDAwMDogbG9hZCB0ZXN0IDEwMDAwIG9uIHByYWRlZXA=</messages>\n"
+		+ "\">PDMxPm1haW46IDIwMTctMTAtMDMgbG9jYWxob3N0IGZvbyVkOiBsb2FkIHRlc3RwYXZhbiAlZCBvbiB0dHk</messages>\n"
 
 		+ "</syslog-message-log>";
 		return syslogMessage;
+		
 	}
 	
 	public static String iso8601OffsetString(Date d, ZoneId zone, ChronoUnit truncateTo) {

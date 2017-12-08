@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<binding>
+	<mapping name="SyslogMessageLogDTO" class="org.opennms.netmgt.syslogd.api.SyslogMessageLogDTO" ordered="false">
+		<value name="source-address" field="source-address" />
+		<value name="source-port" field="source-port" usage="optional" />
+		<value name="system-id" field="system-id" usage="optional" />
+		<value name="location" field="location" usage="optional" />
+		<value name="messages" field="messages" usage="optional" />
+	</mapping>
+</binding>

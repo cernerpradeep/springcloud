@@ -13,19 +13,19 @@ public class COEMetrics {
 	public MetricsBean getMetrics() {
 		
 		MetricsBean metrics = new MetricsBean();
-		metrics.setCounter(SyslogConvertToEventService.count);
-		metrics.setEndTime(SyslogConvertToEventService.lastTimeStamp + "");
-		metrics.setStartTime(SyslogConvertToEventService.firstTimeStamp + "");
-		long diff = Math.abs(SyslogConvertToEventService.lastTimeStamp.getTime() - SyslogConvertToEventService.firstTimeStamp.getTime())/1000;
+		metrics.setCounter(SyslogConvertToSyslogMessageService.count);
+		metrics.setEndTime(SyslogConvertToSyslogMessageService.lastTimeStamp + "");
+		metrics.setStartTime(SyslogConvertToSyslogMessageService.firstTimeStamp + "");
+		long diff = Math.abs(SyslogConvertToSyslogMessageService.lastTimeStamp.getTime() - SyslogConvertToSyslogMessageService.firstTimeStamp.getTime())/1000;
 		metrics.setTotalExecutionTime(diff);
 		if (diff == 0) diff = 1;
-		metrics.setRate(SyslogConvertToEventService.count/diff);
+		metrics.setRate(SyslogConvertToSyslogMessageService.count/diff);
 		return metrics;
 	}
 	
 	@RequestMapping("/resetCounter")
 	public String resetCounter() {
-		SyslogConvertToEventService.count = 0;
+		SyslogConvertToSyslogMessageService.count = 0;
 		
 		class SimpleCounter implements Runnable{
 
@@ -38,8 +38,8 @@ public class COEMetrics {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-					if (SyslogConvertToEventService.count > 1) {
-						SyslogConvertToEventService.firstTimeStamp = new Date();
+					if (SyslogConvertToSyslogMessageService.count > 1) {
+						SyslogConvertToSyslogMessageService.firstTimeStamp = new Date();
 						//System.out.println("Captured the first timeStamp"+firstTimeStamp);
 						break;
 					}

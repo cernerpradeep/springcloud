@@ -37,6 +37,8 @@
 		<module>eventEnricher</module>
 		<module>eventHibernateWriter</module>
 		<module>eventBroadCaster</module>
+		<module>syslogMessagetoEventCreator</module>
+		<module>syslogStringToDTOConverter</module>
 	</modules>
 	<dependencyManagement>
 		<dependencies>
