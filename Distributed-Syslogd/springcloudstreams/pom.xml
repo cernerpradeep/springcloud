@@ -320,6 +320,7 @@
 	            </executions>
 	            <configuration>
 	                <includeSystemScope>true</includeSystemScope>
+	                <jvmArguments>-Xmx10G</jvmArguments>
 	            </configuration>
 	        </plugin>
 	    </plugins>
