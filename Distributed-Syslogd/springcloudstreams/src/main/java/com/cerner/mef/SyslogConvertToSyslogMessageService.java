@@ -93,7 +93,7 @@ public class SyslogConvertToSyslogMessageService {
 		count++;
 		processor.output().send(MessageBuilder.withPayload(syslogMessageLogDTO).build());
 		lastTimeStamp = new Date();
-		System.out.println("Count:"+count);
+		//System.out.println("Count:"+count);
 	}
 	
 	

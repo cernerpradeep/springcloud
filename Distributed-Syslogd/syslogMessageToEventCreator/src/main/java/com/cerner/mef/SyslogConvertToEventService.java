@@ -94,7 +94,7 @@ public class SyslogConvertToEventService {
 		count++;
 		processor.output().send(MessageBuilder.withPayload(log).build());
 		lastTimeStamp = new Date();
-		System.out.println("Count:"+count);
+		//System.out.println("Count:"+count);
 	}
 	
 }

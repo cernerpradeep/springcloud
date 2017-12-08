@@ -101,7 +101,7 @@ public class EventEnricherService {
 	
 	public void sendLogObject(Log log) {
 		processor.output().send(MessageBuilder.withPayload((log)).build());
-		System.out.println(new EventWrapper(log.getEvents().getEvent(0)));
+		//System.out.println(new EventWrapper(log.getEvents().getEvent(0)));
 		count++;
 		lastTimestamp = new Date();
 	}
