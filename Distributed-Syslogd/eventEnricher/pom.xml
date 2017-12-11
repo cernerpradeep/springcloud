@@ -36,6 +36,7 @@
 	            </executions>
 	            <configuration>
 	                <includeSystemScope>true</includeSystemScope>
+	                <executable>true</executable>
 	            </configuration>
 	        </plugin>
 	    </plugins>
