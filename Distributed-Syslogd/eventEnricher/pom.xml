@@ -37,6 +37,7 @@
 	            <configuration>
 	                <includeSystemScope>true</includeSystemScope>
 	                <executable>true</executable>
+	                <jvmArguments>-Xmx15G</jvmArguments>
 	            </configuration>
 	        </plugin>
 	    </plugins>
