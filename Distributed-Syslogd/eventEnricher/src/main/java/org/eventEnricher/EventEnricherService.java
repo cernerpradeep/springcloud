@@ -28,7 +28,7 @@ public class EventEnricherService {
 	
 	private Processor processor;
 	
-	private ExecutorService service = Executors.newFixedThreadPool(100);
+	private ExecutorService service = Executors.newFixedThreadPool(16);
 	
 	@Autowired
 	private EventIpcManagerDefaultImpl eventIpcManagerDefaultImpl;

@@ -21,7 +21,7 @@ import org.springframework.integration.support.MessageBuilder;
 public class SyslogConvertToEventService {
 	
 	private Processor processor;
-	private ExecutorService service = Executors.newFixedThreadPool(2);
+	private ExecutorService service = Executors.newFixedThreadPool(16);
 	
 	public static int count;
 	public static Date lastTimeStamp;
@@ -69,14 +69,14 @@ public class SyslogConvertToEventService {
 	}
 	
 	@StreamListener(Processor.INPUT)
-	public void receiveSyslogs(Object syslogMessage) {
+	public void receiveSyslogs(String syslogMessage) {
 		
 		class SyslogConvertTOEvent implements Runnable {
 			
 			private SyslogMessageLogDTO syslogMessageLogDTO;
 			
 			public SyslogConvertTOEvent(String message) {
-				syslogMessageLogDTO = (SyslogMessageLogDTO) xmlHandler.unmarshal(syslogMessage.toString());
+				syslogMessageLogDTO = (SyslogMessageLogDTO) xmlHandler.unmarshal(syslogMessage);
 			}
 
 			@Override
@@ -86,11 +86,11 @@ public class SyslogConvertToEventService {
 			
 			public void convertTOEvent() {
 				    
-				Log logObject = syslogSinkConsumer.handleMessage(syslogMessageLogDTO);
+				Log logObject = syslogSinkConsumer.toEventLog(syslogMessageLogDTO);
 				postLogsToStream(logObject);
 			}
 		}
-		service.execute(new SyslogConvertTOEvent(syslogMessage.toString()));
+		service.execute(new SyslogConvertTOEvent(syslogMessage));
 	}
 	
 	public void postLogsToStream(Log log) {
