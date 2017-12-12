@@ -53,8 +53,7 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
-import org.opennms.core.logging.Logging;
-import org.opennms.core.logging.Logging.MDCCloseable;
+import org.opennms.core.utils.ConfigFileConstants;
 import org.opennms.core.utils.InetAddressUtils;
 import org.opennms.netmgt.config.SyslogdConfig;
 import org.opennms.netmgt.dao.api.DistPollerDao;
@@ -67,9 +66,10 @@ import org.opennms.netmgt.xml.event.Log;
 import org.opennms.netmgt.xml.event.Parm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.ClassPathResource;
+
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
-import com.codahale.metrics.Timer.Context;
 
 @Resource
 public class SyslogSinkConsumer  {
@@ -87,8 +87,6 @@ public class SyslogSinkConsumer  {
     private final static ExecutorService m_executor = Executors.newSingleThreadExecutor();
     
     private static List<String> grokPatternsList;
-    
-    private static int count;
     
     public static List<String> getGrokPatternsList() {
         return grokPatternsList;
@@ -124,7 +122,8 @@ public class SyslogSinkConsumer  {
      */
     static {
         try {
-            loadGrokParserList();
+			loadGrokParserList();
+				// TODO Auto-generated catch block
         } catch (IOException e) {
             LOG.debug("Failed to load Grok pattern list."+e);
         }
@@ -133,10 +132,9 @@ public class SyslogSinkConsumer  {
 
     public static void loadGrokParserList() throws IOException {
         grokPatternsList = new ArrayList<String>();
-        String fileName = "syslogd-configuration.properites";
-        ClassLoader classLoader = SyslogSinkConsumer.class.getClassLoader();
-        String file = new File(classLoader.getResource(fileName).getFile()).getAbsolutePath().replaceAll("%20", " ");
-        readPropertiesInOrderFrom(new File(file));
+        File syslogConfigFile = ConfigFileConstants
+                .getFile(ConfigFileConstants.SYSLOGD_CONFIGURATION_PROPERTIES);
+        readPropertiesInOrderFrom(syslogConfigFile);
     }
     
     public Log handleMessage(SyslogMessageLogDTO syslogDTO) {
@@ -301,7 +299,7 @@ public class SyslogSinkConsumer  {
             final BufferedReader reader = new BufferedReader(new InputStreamReader(propertiesFileInputStream));
 
             String bufferedReader = reader.readLine();
-
+            
             while (bufferedReader != null) {
                 final ByteArrayInputStream lineStream = new ByteArrayInputStream(bufferedReader.getBytes("ISO-8859-1"));
                 properties.load(lineStream); 
@@ -322,5 +320,39 @@ public class SyslogSinkConsumer  {
             reader.close();
             return grokPatternsList;
         }
+        
+        
+        public static List<String> readPropertiesInOrderFrom(String syslogdConfigdFilePath)
+                throws IOException {
+        	
+        	    new ClassPathResource(syslogdConfigdFilePath).getFile();
+            ClassPathResource resource = new ClassPathResource(syslogdConfigdFilePath);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(resource.getInputStream()));
+            Set<String> grookSet=new LinkedHashSet<String>();
+            final Properties properties = new Properties(); 
+            
+            String bufferedReader = reader.readLine();
+            
 
+            while (bufferedReader != null) {
+                final ByteArrayInputStream lineStream = new ByteArrayInputStream(bufferedReader.getBytes("ISO-8859-1"));
+                properties.load(lineStream); 
+
+                final Enumeration<?> propertyNames = properties.<String>propertyNames();
+
+                if (propertyNames.hasMoreElements()) { 
+
+                    final String paramKey = (String) propertyNames.nextElement();
+                    final String paramsValue = properties.getProperty(paramKey);
+
+                    grookSet.add(paramsValue);
+                    properties.clear(); 
+                }
+                bufferedReader = reader.readLine();
+            }
+            grokPatternsList=new ArrayList<String>(grookSet);
+            reader.close();
+            return grokPatternsList;
+        } 
+        
 }

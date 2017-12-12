@@ -70,10 +70,14 @@ public final class SyslogdConfigFactory implements SyslogdConfig {
      * @throws java.io.IOException Thrown if the specified config file cannot be read
      */
     public SyslogdConfigFactory() throws IOException {
-        String fileName = "syslogd-configuration.xml";
+        /*String fileName = "syslogd-configuration.xml";
         ClassLoader classLoader = SyslogSinkConsumer.class.getClassLoader();
         String file = new File(classLoader.getResource(fileName).getFile()).getAbsolutePath().replaceAll("%20", " ");
         File configFile = new File(file);
+        m_config = JaxbUtils.unmarshal(SyslogdConfiguration.class, new FileSystemResource(configFile));
+        parseIncludedFiles();*/
+    		System.setProperty("opennms.home", "/opt/opennms");
+    		File configFile = ConfigFileConstants.getFile(ConfigFileConstants.SYSLOGD_CONFIG_FILE_NAME);
         m_config = JaxbUtils.unmarshal(SyslogdConfiguration.class, new FileSystemResource(configFile));
         parseIncludedFiles();
     }
@@ -228,11 +232,7 @@ public final class SyslogdConfigFactory implements SyslogdConfig {
     private void parseIncludedFiles() throws IOException {
         final File configDir;
         try {
-            String fileName = "syslogd-configuration.xml";
-            ClassLoader classLoader = SyslogSinkConsumer.class.getClassLoader();
-            String file = new File(classLoader.getResource(fileName).getFile()).getAbsolutePath().replaceAll("%20", " ");
-            File configFile = new File(file);
-            configDir = configFile.getParentFile();
+        	 configDir = ConfigFileConstants.getFile(ConfigFileConstants.SYSLOGD_CONFIG_FILE_NAME).getParentFile();
         } catch (final Throwable t) {
             LOG.warn("Error getting default syslogd configuration location. <import-file> directives will be ignored.  This should really only happen in unit tests.");
             return;
