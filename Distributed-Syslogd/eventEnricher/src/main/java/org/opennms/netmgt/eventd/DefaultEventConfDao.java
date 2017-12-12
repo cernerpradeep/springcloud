@@ -12,6 +12,7 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import org.opennms.core.utils.ConfigFileConstants;
 import org.opennms.core.xml.JaxbUtils;
 import org.opennms.netmgt.config.api.EventConfDao;
 import org.opennms.netmgt.xml.eventconf.Event;
@@ -28,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
@@ -254,9 +256,13 @@ public class DefaultEventConfDao implements EventConfDao, InitializingBean {
     private synchronized void reloadConfig() throws DataAccessException {
         try {
             // Load the root event file
-        	    ApplicationContext ctx= new AnnotationConfigApplicationContext(DefaultEventConfDao.class);
-        	    m_configResource = ctx.getResource("eventconf.xml");
-            Events events = JaxbUtils.unmarshal(Events.class, m_configResource);
+        	    //ApplicationContext ctx= new AnnotationConfigApplicationContext(DefaultEventConfDao.class);
+        	   // m_configResource = ctx.getResource("eventconf.xml");
+        		System.out.println("Before loading event conf");
+        	    m_configResource = new ClassPathResource("classpath:eventconf.xml");
+        	    System.setProperty("opennms.home", "/opt/opennms");
+            File syslogConfigFile = ConfigFileConstants.getConfigFileByName("eventconf.xml");
+            Events events = JaxbUtils.unmarshal(Events.class, syslogConfigFile);
 
             // Hash the list of event files for efficient lookup
             Set<String> eventFiles = new HashSet<String>();
@@ -286,17 +292,12 @@ public class DefaultEventConfDao implements EventConfDao, InitializingBean {
 
 	private synchronized void loadConfig() throws DataAccessException {
 		try {
-			ClassLoader classLoader = getClass().getClassLoader();
-			File fileName = new File(classLoader.getResource(
-					"eventconf.xml").getFile());
-
-			String filename = fileName.getAbsolutePath().replaceAll("%20", " ");
-			//String filename = fileName.getPath();
-			String path = "file:"+filename;
-			ResourceLoader testResourceLoader = new FileSystemResourceLoader();
-			m_configResource = testResourceLoader.getResource(path);
-			
-			Events events = JaxbUtils.unmarshal(Events.class, m_configResource);
+			m_configResource = new ClassPathResource("classpath:eventconf.xml");
+			System.out.println("Setting the classPathResource....");
+      	    System.setProperty("opennms.home", "/opt/opennms");
+            File syslogConfigFile = ConfigFileConstants.getConfigFileByName("eventconf.xml");
+            Events events = JaxbUtils.unmarshal(Events.class, syslogConfigFile);
+            
 			m_lastModifiedEventFiles = events.loadEventFiles(m_configResource);
 
 			m_partition = new EnterpriseIdPartition();
