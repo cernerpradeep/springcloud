@@ -123,17 +123,19 @@ public class SyslogSinkConsumer  {
     static {
         try {
 			loadGrokParserList();
-				// TODO Auto-generated catch block
         } catch (IOException e) {
+        		e.printStackTrace();
             LOG.debug("Failed to load Grok pattern list."+e);
         }
 
     }
 
     public static void loadGrokParserList() throws IOException {
+    		System.out.println("Before loading grok ");
         grokPatternsList = new ArrayList<String>();
-        File syslogConfigFile = ConfigFileConstants
-                .getFile(ConfigFileConstants.SYSLOGD_CONFIGURATION_PROPERTIES);
+        System.setProperty("opennms.home", "/opt/opennms");
+        File syslogConfigFile = ConfigFileConstants.getConfigFileByName("syslogd-configuration.properites");
+        System.out.println("Printing importat info"+syslogConfigFile.getAbsolutePath());
         readPropertiesInOrderFrom(syslogConfigFile);
     }
     
