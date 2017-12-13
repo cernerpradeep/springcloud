@@ -131,11 +131,11 @@ public class SyslogSinkConsumer  {
     }
 
     public static void loadGrokParserList() throws IOException {
-    		System.out.println("Before loading grok ");
+    		//System.out.println("Before loading grok ");
         grokPatternsList = new ArrayList<String>();
         System.setProperty("opennms.home", "/opt/opennms");
         File syslogConfigFile = ConfigFileConstants.getConfigFileByName("syslogd-configuration.properites");
-        System.out.println("Printing importat info"+syslogConfigFile.getAbsolutePath());
+       // System.out.println("Printing importat info"+syslogConfigFile.getAbsolutePath());
         readPropertiesInOrderFrom(syslogConfigFile);
     }
     
