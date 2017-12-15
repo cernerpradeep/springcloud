@@ -53,6 +53,8 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
+import org.opennms.core.logging.Logging;
+import org.opennms.core.logging.Logging.MDCCloseable;
 import org.opennms.core.utils.ConfigFileConstants;
 import org.opennms.core.utils.InetAddressUtils;
 import org.opennms.netmgt.config.SyslogdConfig;
@@ -66,10 +68,9 @@ import org.opennms.netmgt.xml.event.Log;
 import org.opennms.netmgt.xml.event.Parm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.ClassPathResource;
-
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
+import com.codahale.metrics.Timer.Context;
 
 @Resource
 public class SyslogSinkConsumer  {
@@ -87,6 +88,8 @@ public class SyslogSinkConsumer  {
     private final static ExecutorService m_executor = Executors.newSingleThreadExecutor();
     
     private static List<String> grokPatternsList;
+    
+    private static int count;
     
     public static List<String> getGrokPatternsList() {
         return grokPatternsList;
@@ -122,16 +125,14 @@ public class SyslogSinkConsumer  {
      */
     static {
         try {
-			loadGrokParserList();
+            loadGrokParserList();
         } catch (IOException e) {
-        		e.printStackTrace();
             LOG.debug("Failed to load Grok pattern list."+e);
         }
 
     }
 
     public static void loadGrokParserList() throws IOException {
-    		//System.out.println("Before loading grok ");
         grokPatternsList = new ArrayList<String>();
         System.setProperty("opennms.home", "/opt/opennms");
         File syslogConfigFile = ConfigFileConstants.getConfigFileByName("syslogd-configuration.properites");
@@ -158,7 +159,7 @@ public class SyslogSinkConsumer  {
        // }
    // }
 
-    public Log toEventLog(SyslogMessageLogDTO messageLog) {
+    public SyslogMessageLogDTO toSyslogMessage(SyslogMessageLogDTO messageLog) {
         final Log elog = new Log();
         final Events events = new Events();
         elog.setEvents(events);
@@ -175,6 +176,39 @@ public class SyslogSinkConsumer  {
                         StandardCharsets.US_ASCII.decode(message.getBytes()).toString(),
                         syslogdConfig,
                         parse(message.getBytes())
+                    );
+                messageLog.setSyslogMessage(re.getSyslogMessage());
+            } catch (final UnsupportedEncodingException e) {
+                LOG.info("Failure to convert package", e);
+            } catch (final MessageDiscardedException e) {
+                LOG.info("Message discarded, returning without enqueueing event.", e);
+            } catch (final Throwable e) {
+                LOG.error("Unexpected exception while processing SyslogConnection", e);
+            }
+            
+        }
+		return messageLog;
+        
+    }
+    
+    public Log toEventLog(SyslogMessageLogDTO messageLog) {
+        final Log elog = new Log();
+        final Events events = new Events();
+        elog.setEvents(events);
+        for (SyslogMessageDTO message : messageLog.getMessages()) {
+            try {
+                LOG.debug("Converting syslog message into event.");
+                ConvertSyslogMessageToEvent re = new ConvertSyslogMessageToEvent(
+                        messageLog.getSystemId(),
+                        messageLog.getLocation(),
+                        messageLog.getSourceAddress(),
+                        messageLog.getSourcePort(),
+                        // Decode the packet content as ASCII
+                        // TODO: Support more character encodings?
+                        StandardCharsets.US_ASCII.decode(message.getBytes()).toString(),
+                        syslogdConfig,
+                        parse(message.getBytes()),
+                        messageLog.getSyslogMessage()
                     );
                 events.addEvent(re.getEvent());
             } catch (final UnsupportedEncodingException e) {
@@ -216,6 +250,7 @@ public class SyslogSinkConsumer  {
             }
         }
        // eventForwarder.sendNowSync(eventLog);
+
         if (syslogdConfig.getNewSuspectOnMessage()) {
             eventLog.getEvents().getEventCollection().stream()
                 .filter(e -> !e.hasNodeid())
@@ -300,7 +335,7 @@ public class SyslogSinkConsumer  {
             final BufferedReader reader = new BufferedReader(new InputStreamReader(propertiesFileInputStream));
 
             String bufferedReader = reader.readLine();
-            
+
             while (bufferedReader != null) {
                 final ByteArrayInputStream lineStream = new ByteArrayInputStream(bufferedReader.getBytes("ISO-8859-1"));
                 properties.load(lineStream); 
@@ -321,39 +356,5 @@ public class SyslogSinkConsumer  {
             reader.close();
             return grokPatternsList;
         }
-        
-        
-        public static List<String> readPropertiesInOrderFrom(String syslogdConfigdFilePath)
-                throws IOException {
-        	
-        	    new ClassPathResource(syslogdConfigdFilePath).getFile();
-            ClassPathResource resource = new ClassPathResource(syslogdConfigdFilePath);
-            BufferedReader reader = new BufferedReader(new InputStreamReader(resource.getInputStream()));
-            Set<String> grookSet=new LinkedHashSet<String>();
-            final Properties properties = new Properties(); 
-            
-            String bufferedReader = reader.readLine();
-            
 
-            while (bufferedReader != null) {
-                final ByteArrayInputStream lineStream = new ByteArrayInputStream(bufferedReader.getBytes("ISO-8859-1"));
-                properties.load(lineStream); 
-
-                final Enumeration<?> propertyNames = properties.<String>propertyNames();
-
-                if (propertyNames.hasMoreElements()) { 
-
-                    final String paramKey = (String) propertyNames.nextElement();
-                    final String paramsValue = properties.getProperty(paramKey);
-
-                    grookSet.add(paramsValue);
-                    properties.clear(); 
-                }
-                bufferedReader = reader.readLine();
-            }
-            grokPatternsList=new ArrayList<String>(grookSet);
-            reader.close();
-            return grokPatternsList;
-        } 
-        
 }
