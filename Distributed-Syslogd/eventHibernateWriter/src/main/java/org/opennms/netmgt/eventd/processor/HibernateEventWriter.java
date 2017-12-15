@@ -223,8 +223,8 @@ public class HibernateEventWriter implements EventWriter {
 	            synchronized(this) {
 		            eventDao.save(ovent);
 		            event.setDbid(ovent.getId());
-		            count++;
-		            System.out.println("Hibernate Count:"+count);
+		            //count++;
+		           // System.out.println("Hibernate Count:"+count);
 	            }
 
             // Update the event with the database ID of the event stored in the database
